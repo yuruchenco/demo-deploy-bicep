@@ -1,4 +1,10 @@
-on: [push]
+on:
+ push:
+  branches:
+  - main
+ pull_request:
+ workflow_dispatch:
+  
 name: Azure ARM
 jobs:
   build-and-deploy:

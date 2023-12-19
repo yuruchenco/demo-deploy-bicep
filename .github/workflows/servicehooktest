@@ -1,1 +1,13 @@
 
+name: Repository Dispatch Workflow
+on:
+  repository_dispatch:
+    types: [echo_message]
+jobs:
+  echo_message:
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Echo Message
+　　　　　　　　　　　　　　　　env:
+          MESSAGE: ${{ github.event.client_payload.message }}
+        run: echo ${{ env.MESSAGE }}

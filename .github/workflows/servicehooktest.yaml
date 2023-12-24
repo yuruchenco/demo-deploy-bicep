@@ -9,23 +9,27 @@ jobs:
       - name: Echo Message
         run: echo "${{ github.event.client_payload.message }}"
   build-and-deploy:
+    needs: echo_message
     runs-on: ubuntu-latest
     steps:
-
       # Checkout code
-    - uses: actions/checkout@main
+    - name: Checkout code
+      uses: actions/checkout@main
 
       # Log into Azure
-    - uses: azure/login@v1
+    - name: Log into Azure
+      uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Deploy Bicep file
-    - name: deploy
+    - name: Deploy Bicep file
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
-        template: ./04_vm_demo/main.bicep
-        parameters: 'storagePrefix=bicepstore storageSKU=Standard_LRS'
+        template: ./01_network_demo/main-network_1.bicep
         failOnStdErr: false
+        # parameters: > # Uncomment and use if you have parameters to pass
+        #   parameter1=value1
+        #   parameter2=value2

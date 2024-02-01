@@ -15,7 +15,7 @@ param hubVnetEnabled bool = true
 param spokeVnetEnabled bool = true
 
 @description('Specifies whether creating the bastion resource or not.')
-param bastionEnabled bool = true
+param bastionEnabled bool = false
 
 
 
@@ -44,4 +44,7 @@ module bastionModule './modules/bastion.bicep' = if (bastionEnabled) {
     AzureBastionSubnet:vNetModule.outputs.OUTPUT_BASTION_SUBNET_NAME
     bastionEnabled:bastionEnabled
   }
+  dependsOn: [
+    vNetModule
+  ]
 }

@@ -15,7 +15,7 @@ param hubVnetEnabled bool = true
 param spokeVnetEnabled bool = true
 
 @description('Specifies whether creating the bastion resource or not.')
-param bastionEnabled bool = false
+param bastionEnabled bool = true
 
 
 

@@ -6,7 +6,7 @@ param location string = resourceGroup().location
 param enviroment string = 'poc'
 
 @description('Specific VM Number')
-param vmNumber int = 2
+param vmNumber int = 1
 
 @description('Specific VM Admin Username')
 param VM_ADMIN_USERNAME string = 'azureuser'

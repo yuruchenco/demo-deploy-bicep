@@ -44,4 +44,7 @@ module bastionModule './modules/bastion.bicep' = if (bastionEnabled) {
     AzureBastionSubnet:vNetModule.outputs.OUTPUT_BASTION_SUBNET_NAME
     bastionEnabled:bastionEnabled
   }
+  dependsOn: [
+    vNetModule
+  ]
 }

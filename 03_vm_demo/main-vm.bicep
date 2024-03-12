@@ -5,6 +5,28 @@ param location string = resourceGroup().location
 @description('Specific Enviroment name')
 param enviroment string = 'poc'
 
+@description('Name for the Public IP used to access the Virtual Machine.')
+param publicIpName string = 'myPublicIP'
+
+@description('Allocation method for the Public IP used to access the Virtual Machine.')
+@allowed([
+  'Dynamic'
+  'Static'
+])
+param publicIPAllocationMethod string = 'Dynamic'
+
+@description('SKU for the Public IP used to access the Virtual Machine.')
+@allowed([
+  'Basic'
+  'Standard'
+])
+
+param publicIpSku string = 'Basic'
+
+
+@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
+param dnsLabelPrefix string = toLower('vm-${enviroment}-${vmNumber}-${uniqueString(resourceGroup().id, 'vm-${enviroment}-${vmNumber}')}')
+
 @description('Specific VM Number')
 param vmNumber int = 1
 
@@ -56,6 +78,20 @@ resource existingspokevnet 'Microsoft.Network/virtualNetworks@2020-05-01' existi
   }
 }
 
+resource publicIp 'Microsoft.Network/publicIPAddresses@2022-05-01' = {
+  name: publicIpName
+  location: location
+  sku: {
+    name: publicIpSku
+  }
+  properties: {
+    publicIPAllocationMethod: publicIPAllocationMethod
+    dnsSettings: {
+      domainNameLabel: dnsLabelPrefix
+    }
+  }
+}
+
 //Deploy nic
 resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   name: VM_NIC_NAME
@@ -69,6 +105,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
             id: existingspokevnet::existingvmsubnet.id
           }
           privateIPAllocationMethod: PRIVATE_IP_AllOCATION_METHOD
+          publicIPAddress: {
+            id: publicIp.id
+          }
         }
       }
     ]
@@ -154,3 +193,6 @@ resource linuxAgent 'Microsoft.Compute/virtualMachines/extensions@2023-07-01' = 
     }
   }
 }
+
+
+output hostname string = publicIp.properties.dnsSettings.fqdn

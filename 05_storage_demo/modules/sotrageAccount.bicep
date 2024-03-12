@@ -13,12 +13,11 @@ param storagePrefix string
   'Standard_GZRS'
   'Standard_RAGZRS'
 ])
-param storageSKU string = 'Standard_LRS'
-
+param storageSKU string
 param location string
 
 
-//
+//storage account variables
 var uniqueStorageName = '${storagePrefix}${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {

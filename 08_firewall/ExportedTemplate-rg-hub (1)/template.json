@@ -1,0 +1,722 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b607c_serializedData": {
+            "type": "SecureString"
+        },
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b60ef_serializedData": {
+            "type": "SecureString"
+        },
+        "routeTables_rt_hub_fw_name": {
+            "defaultValue": "rt-hub-fw",
+            "type": "String"
+        },
+        "azureFirewalls_azfw_test_name": {
+            "defaultValue": "azfw-test",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_hub_name": {
+            "defaultValue": "vnet-hub",
+            "type": "String"
+        },
+        "firewallPolicies_fw_policy_hub_name": {
+            "defaultValue": "fw-policy-hub",
+            "type": "String"
+        },
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b607c_name": {
+            "defaultValue": "c1e168de-f5c0-4e02-ac92-5772b48b607c",
+            "type": "String"
+        },
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b60ef_name": {
+            "defaultValue": "c1e168de-f5c0-4e02-ac92-5772b48b60ef",
+            "type": "String"
+        },
+        "networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name": {
+            "defaultValue": "vnet-hub-VmSubnet-nsg-japaneast",
+            "type": "String"
+        },
+        "publicIPAddresses_pip_fw_test_externalid": {
+            "defaultValue": "/subscriptions/7fd24fa5-b36e-4da0-bb40-2cd734d5fb2b/resourceGroups/rg-AppGW2FW/providers/Microsoft.Network/publicIPAddresses/pip-fw-test",
+            "type": "String"
+        },
+        "virtualNetworks_vnet_function_japaneast_externalid": {
+            "defaultValue": "/subscriptions/7fd24fa5-b36e-4da0-bb40-2cd734d5fb2b/resourceGroups/rg-function-japaneast/providers/Microsoft.Network/virtualNetworks/vnet-function-japaneast",
+            "type": "String"
+        },
+        "virtualNetworks_my_linux_vm_vnet_externalid": {
+            "defaultValue": "/subscriptions/7fd24fa5-b36e-4da0-bb40-2cd734d5fb2b/resourceGroups/rg-bicep-monitor/providers/Microsoft.Network/virtualNetworks/my-linux-vm-vnet",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "microsoft.insights/workbooks",
+            "apiVersion": "2023-06-01",
+            "name": "[parameters('workbooks_c1e168de_f5c0_4e02_ac92_5772b48b607c_name')]",
+            "location": "eastus",
+            "tags": {
+                "hidden-title": "Sample-Book"
+            },
+            "kind": "shared",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "displayName": "Sample-Book",
+                "version": "Notebook/1.0",
+                "category": "workbook",
+                "sourceId": "azure monitor",
+                "serializedData": "[parameters('workbooks_c1e168de_f5c0_4e02_ac92_5772b48b607c_serializedData')]"
+            }
+        },
+        {
+            "type": "microsoft.insights/workbooks",
+            "apiVersion": "2023-06-01",
+            "name": "[parameters('workbooks_c1e168de_f5c0_4e02_ac92_5772b48b60ef_name')]",
+            "location": "japaneast",
+            "tags": {
+                "hidden-title": "APRL_QueriesBook"
+            },
+            "kind": "shared",
+            "identity": {
+                "type": "None"
+            },
+            "properties": {
+                "displayName": "APRL_QueriesBook",
+                "version": "Notebook/1.0",
+                "category": "workbook",
+                "sourceId": "azure monitor",
+                "serializedData": "[parameters('workbooks_c1e168de_f5c0_4e02_ac92_5772b48b60ef_serializedData')]"
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies",
+            "apiVersion": "2023-09-01",
+            "name": "[parameters('firewallPolicies_fw_policy_hub_name')]",
+            "location": "japaneast",
+            "properties": {
+                "sku": {
+                    "tier": "Standard"
+                },
+                "threatIntelMode": "Alert"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2023-09-01",
+            "name": "[parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name')]",
+            "location": "japaneast",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AllowCorpnet",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'), 'AllowCorpnet')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "CSS Governance Security Rule.  Allow Corpnet inbound.  https://aka.ms/casg",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "CorpNetPublic",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 2700,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "AllowSAW",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'), 'AllowSAW')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "CSS Governance Security Rule.  Allow SAW inbound.  https://aka.ms/casg",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "CorpNetSaw",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 2701,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/routeTables",
+            "apiVersion": "2023-09-01",
+            "name": "[parameters('routeTables_rt_hub_fw_name')]",
+            "location": "japaneast",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "rt-internet",
+                        "id": "[resourceId('Microsoft.Network/routeTables/routes', parameters('routeTables_rt_hub_fw_name'), 'rt-internet')]",
+                        "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "Internet",
+                            "hasBgpOverride": false
+                        },
+                        "type": "Microsoft.Network/routeTables/routes"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('firewallPolicies_fw_policy_hub_name'), '/DefaultApplicationCollectionGroup')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_fw_policy_hub_name'))]"
+            ],
+            "properties": {
+                "priority": 300,
+                "ruleCollections": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('firewallPolicies_fw_policy_hub_name'), '/DefaultApplicationRuleCollectionGroup')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_fw_policy_hub_name'))]"
+            ],
+            "properties": {
+                "priority": 300,
+                "ruleCollections": [
+                    {
+                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                        "action": {
+                            "type": "Allow"
+                        },
+                        "rules": [
+                            {
+                                "ruleType": "ApplicationRule",
+                                "name": "zuka",
+                                "protocols": [
+                                    {
+                                        "protocolType": "Https",
+                                        "port": 443
+                                    }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                    "apis.kedamakawaii.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "httpHeadersToInsert": []
+                            },
+                            {
+                                "ruleType": "ApplicationRule",
+                                "name": "kakunin",
+                                "protocols": [
+                                    {
+                                        "protocolType": "Https",
+                                        "port": 443
+                                    }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                    "www.ugtop.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "httpHeadersToInsert": []
+                            },
+                            {
+                                "ruleType": "ApplicationRule",
+                                "name": "blob1",
+                                "protocols": [
+                                    {
+                                        "protocolType": "Https",
+                                        "port": 443
+                                    }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                    "rgfunctionjapaneastaef8.blob.core.windows.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "httpHeadersToInsert": []
+                            },
+                            {
+                                "ruleType": "ApplicationRule",
+                                "name": "oryx",
+                                "protocols": [
+                                    {
+                                        "protocolType": "Https",
+                                        "port": 443
+                                    }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                    "github.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "httpHeadersToInsert": []
+                            },
+                            {
+                                "ruleType": "ApplicationRule",
+                                "name": "oryx2",
+                                "protocols": [
+                                    {
+                                        "protocolType": "Https",
+                                        "port": 443
+                                    }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                    "oryx-cdn.microsoft.io"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "httpHeadersToInsert": []
+                            },
+                            {
+                                "ruleType": "ApplicationRule",
+                                "name": "pypi",
+                                "protocols": [
+                                    {
+                                        "protocolType": "Https",
+                                        "port": 443
+                                    }
+                                ],
+                                "fqdnTags": [],
+                                "webCategories": [],
+                                "targetFqdns": [
+                                    "pypi.org"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "httpHeadersToInsert": []
+                            }
+                        ],
+                        "name": "RuleCollection01",
+                        "priority": 300
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('firewallPolicies_fw_policy_hub_name'), '/DefaultDnatRuleCollectionGroup')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_fw_policy_hub_name'))]"
+            ],
+            "properties": {
+                "priority": 100,
+                "ruleCollections": [
+                    {
+                        "ruleCollectionType": "FirewallPolicyNatRuleCollection",
+                        "action": {
+                            "type": "Dnat"
+                        },
+                        "rules": [
+                            {
+                                "ruleType": "NatRule",
+                                "name": "sftp",
+                                "translatedAddress": "10.15.0.4",
+                                "translatedPort": "22",
+                                "ipProtocols": [
+                                    "TCP",
+                                    "UDP"
+                                ],
+                                "sourceAddresses": [
+                                    "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                    "20.210.234.183"
+                                ],
+                                "destinationPorts": [
+                                    "22"
+                                ]
+                            }
+                        ],
+                        "name": "rulecollection03",
+                        "priority": 100
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('firewallPolicies_fw_policy_hub_name'), '/DefaultNetworkRuleCollectionGroup')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_fw_policy_hub_name'))]"
+            ],
+            "properties": {
+                "priority": 200,
+                "ruleCollections": [
+                    {
+                        "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                        "action": {
+                            "type": "Allow"
+                        },
+                        "rules": [],
+                        "name": "rulecollection02",
+                        "priority": 1100
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'), '/AllowCorpnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'))]"
+            ],
+            "properties": {
+                "description": "CSS Governance Security Rule.  Allow Corpnet inbound.  https://aka.ms/casg",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "CorpNetPublic",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 2700,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'), '/AllowSAW')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'))]"
+            ],
+            "properties": {
+                "description": "CSS Governance Security Rule.  Allow SAW inbound.  https://aka.ms/casg",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "CorpNetSaw",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 2701,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/routeTables/routes",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('routeTables_rt_hub_fw_name'), '/rt-internet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/routeTables', parameters('routeTables_rt_hub_fw_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "0.0.0.0/0",
+                "nextHopType": "Internet",
+                "hasBgpOverride": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-09-01",
+            "name": "[parameters('virtualNetworks_vnet_hub_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "encryption": {
+                    "enabled": false,
+                    "enforcement": "AllowUnencrypted"
+                },
+                "dhcpOptions": {
+                    "dnsServers": []
+                },
+                "subnets": [
+                    {
+                        "name": "AzureFirewallSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_hub_name'), 'AzureFirewallSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.1.0.0/26",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "defaultOutboundAccess": true
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "VmSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_hub_name'), 'VmSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.1.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'))]"
+                            },
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "[concat(parameters('virtualNetworks_vnet_hub_name'), '-vnet-function')]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_vnet_hub_name'), concat(parameters('virtualNetworks_vnet_hub_name'), '-vnet-function'))]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[parameters('virtualNetworks_vnet_function_japaneast_externalid')]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": true,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    },
+                    {
+                        "name": "hub-vnet-2-my-linux-vm-vnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_vnet_hub_name'), 'hub-vnet-2-my-linux-vm-vnet')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[parameters('virtualNetworks_my_linux_vm_vnet_externalid')]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.15.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.15.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_hub_name'), '/AzureFirewallSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_hub_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.1.0.0/26",
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "defaultOutboundAccess": true
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_hub_name'), '/hub-vnet-2-my-linux-vm-vnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_hub_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[parameters('virtualNetworks_my_linux_vm_vnet_externalid')]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.15.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.15.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_hub_name'), '/', parameters('virtualNetworks_vnet_hub_name'), '-vnet-function')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_hub_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[parameters('virtualNetworks_vnet_function_japaneast_externalid')]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/azureFirewalls",
+            "apiVersion": "2023-09-01",
+            "name": "[parameters('azureFirewalls_azfw_test_name')]",
+            "location": "japaneast",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_hub_name'), 'AzureFirewallSubnet')]",
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_fw_policy_hub_name'))]"
+            ],
+            "properties": {
+                "sku": {
+                    "name": "AZFW_VNet",
+                    "tier": "Standard"
+                },
+                "threatIntelMode": "Alert",
+                "additionalProperties": {},
+                "ipConfigurations": [
+                    {
+                        "name": "pip-fw-test",
+                        "id": "[concat(resourceId('Microsoft.Network/azureFirewalls', parameters('azureFirewalls_azfw_test_name')), '/azureFirewallIpConfigurations/pip-fw-test')]",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[parameters('publicIPAddresses_pip_fw_test_externalid')]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnet_hub_name'), 'AzureFirewallSubnet')]"
+                            }
+                        }
+                    }
+                ],
+                "networkRuleCollections": [],
+                "applicationRuleCollections": [],
+                "natRuleCollections": [],
+                "firewallPolicy": {
+                    "id": "[resourceId('Microsoft.Network/firewallPolicies', parameters('firewallPolicies_fw_policy_hub_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-09-01",
+            "name": "[concat(parameters('virtualNetworks_vnet_hub_name'), '/VmSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnet_hub_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.1.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name'))]"
+                },
+                "serviceEndpoints": [],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        }
+    ]
+}

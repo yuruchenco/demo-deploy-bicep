@@ -3,7 +3,7 @@
 param location string = resourceGroup().location
 
 @description('Enviroment name')
-param enviroment string = 'poc'
+param enviromentName string = 'poc'
 
 @description('Specifies whether creating the hubVnet resource or not.')
 param hubVnetEnabled bool
@@ -16,7 +16,7 @@ param spokeVnetEnabled bool
 
 //Variables
 //hub vNET resource naming variables
-var VNET_HUB_NAME = 'vnet-hub-${enviroment}'
+var VNET_HUB_NAME = 'vnet-hub-${enviromentName}'
 var VNET_HUB_ADDRESS_SPACE = '192.168.0.0/16'
 var BASTION_HUB_SUBNET_NAME = 'AzureBastionSubnet'
 var BASTION_HUB_SUBNET_ADDRESS_PREFIX = '192.168.1.0/26'
@@ -24,12 +24,12 @@ var GW_HUB_SUBNET_NAME = 'GatewaySubnet'
 var GW_HUB_SUBNET_ADDRESS_PREFIX = '192.168.2.0/27'
 
 //spoke vNET resource naming variables
-var VNET_SPOKE_NAME = 'vnet-spoke-${enviroment}'
+var VNET_SPOKE_NAME = 'vnet-spoke-${enviromentName}'
 var VNET_SPOKE_ADDRESS_SPACE = '172.16.0.0/16'
 var VM_SPOKE_SUBNET_NAME = 'VmSubnet'
 var VM_SPOKE_SUBNET_ADDRESS_PREFIX = '172.16.0.0/26'
-var AppService_SPOKE_SUBNET_NAME = 'AppserviceSubnet'
-var AppService_SPOKE_SUBNET_ADDRESS_PREFIX = '172.16.1.0/26'
+var PrivateEndpoint_SPOKE_SUBNET_NAME = 'PrivateEndpointSubnet'
+var PrivateEndpoint_SPOKE_SUBNET_ADDRESS_PREFIX = '172.16.1.0/26'
 
 //hub vNET & spoke vNET peering variables
 var VNET_HUB_TO_SPOKE_PEERING = '${VNET_HUB_NAME}-to-${VNET_SPOKE_NAME}'
@@ -107,9 +107,9 @@ resource spokeVnet 'Microsoft.Network/virtualNetworks@2021-08-01' = if (spokeVne
         }
       }
       {
-        name: AppService_SPOKE_SUBNET_NAME
+        name: PrivateEndpoint_SPOKE_SUBNET_NAME
         properties: {
-          addressPrefix: AppService_SPOKE_SUBNET_ADDRESS_PREFIX
+          addressPrefix: PrivateEndpoint_SPOKE_SUBNET_ADDRESS_PREFIX
           serviceEndpoints: [
             {
               service: 'Microsoft.AzureActiveDirectory'
@@ -163,6 +163,8 @@ resource spokeVnetToHubVnetPeering 'Microsoft.Network/virtualNetworks/virtualNet
 output OUTPUT_HUB_VNET_NAME string = hubVnet.name
 output OUTPUT_SPOKE_VNET_NAME string = spokeVnet.name
 output OUTPUT_SPOKE_VNET_ID string = spokeVnet.id
-output OUTPUT_APPSERVICE_SUBNET_NAME string = spokeVnet.properties.subnets[1].name
-output OUTPUT_APPSERVICE_SUBNET_ID string = spokeVnet.properties.subnets[1].id
+output OUTPUT_VM_SUBNET_NAME string = spokeVnet.properties.subnets[0].name
+output OUTPUT_VM_SUBNET_ID string = spokeVnet.properties.subnets[0].id
+output OUTPUT_PRIVATEENDPOINT_SUBNET_NAME string = spokeVnet.properties.subnets[1].name
+output OUTPUT_PRIVATEENDPOINT_SUBNET_ID string = spokeVnet.properties.subnets[1].id
 output OUTPUT_BASTION_SUBNET_NAME string = hubVnet.properties.subnets[0].name

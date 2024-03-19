@@ -1,0 +1,42 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b607c_serializedData": {
+            "value": null
+        },
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b60ef_serializedData": {
+            "value": null
+        },
+        "routeTables_rt_hub_fw_name": {
+            "value": null
+        },
+        "azureFirewalls_azfw_test_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_hub_name": {
+            "value": null
+        },
+        "firewallPolicies_fw_policy_hub_name": {
+            "value": null
+        },
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b607c_name": {
+            "value": null
+        },
+        "workbooks_c1e168de_f5c0_4e02_ac92_5772b48b60ef_name": {
+            "value": null
+        },
+        "networkSecurityGroups_vnet_hub_VmSubnet_nsg_japaneast_name": {
+            "value": null
+        },
+        "publicIPAddresses_pip_fw_test_externalid": {
+            "value": null
+        },
+        "virtualNetworks_vnet_function_japaneast_externalid": {
+            "value": null
+        },
+        "virtualNetworks_my_linux_vm_vnet_externalid": {
+            "value": null
+        }
+    }
+}

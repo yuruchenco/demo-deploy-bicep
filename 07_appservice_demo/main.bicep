@@ -39,6 +39,9 @@ module appService '../module/appservice.bicep' = {
   }
 }
 
+// ================================================================================================
+// VIRTUAL MACHINE for Connection Test
+// ================================================================================================
 module vmModule '../module/vm.bicep' = [for i in range(0, vmNumber): { 
   name: 'vmModule-${i}'
   params: {

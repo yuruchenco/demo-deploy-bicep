@@ -3,7 +3,7 @@
 param location string = resourceGroup().location
 
 @description('Enviroment name')
-param enviromentName string = 'poc'
+param environmentName string = 'poc'
 
 @description('Specifies whether creating the hubVnet resource or not.')
 param hubVnetEnabled bool
@@ -16,7 +16,7 @@ param spokeVnetEnabled bool
 
 //Variables
 //hub vNET resource naming variables
-var VNET_HUB_NAME = 'vnet-hub-${enviromentName}'
+var VNET_HUB_NAME = 'vnet-hub-${environmentName}'
 var VNET_HUB_ADDRESS_SPACE = '192.168.0.0/16'
 var BASTION_HUB_SUBNET_NAME = 'AzureBastionSubnet'
 var BASTION_HUB_SUBNET_ADDRESS_PREFIX = '192.168.1.0/26'
@@ -24,7 +24,7 @@ var GW_HUB_SUBNET_NAME = 'GatewaySubnet'
 var GW_HUB_SUBNET_ADDRESS_PREFIX = '192.168.2.0/27'
 
 //spoke vNET resource naming variables
-var VNET_SPOKE_NAME = 'vnet-spoke-${enviromentName}'
+var VNET_SPOKE_NAME = 'vnet-spoke-${environmentName}'
 var VNET_SPOKE_ADDRESS_SPACE = '172.16.0.0/16'
 var VM_SPOKE_SUBNET_NAME = 'VmSubnet'
 var VM_SPOKE_SUBNET_ADDRESS_PREFIX = '172.16.0.0/26'

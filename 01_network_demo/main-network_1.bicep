@@ -26,7 +26,7 @@ var GW_HUB_SUBNET_ADDRESS_PREFIX = '192.168.2.0/27'
 //spoke vNET resource naming variables
 var VNET_SPOKE_NAME = 'vnet-spoke-${enviroment}'
 var VNET_SPOKE_ADDRESS_SPACE = '172.16.0.0/16'
-var VM_SPOKE_SUBNET_NAME = 'VmSubnet'
+var VM_SPOKE_SUBNET_NAME = 'VmSubnetTest'
 var VM_SPOKE_SUBNET_ADDRESS_PREFIX = '172.16.0.0/22'
 
 

@@ -8,7 +8,7 @@ param hubVnetEnabled bool = true
 @description('Specifies whether creating the spokeVnet resource or not.')
 param spokeVnetEnabled bool = true
 @description('Enable private network access to the backend service')
-param isPrivateNetworkEnabled bool = true
+param isPrivateNetworkEnabled bool = false
 
 param cosmosDbDatabaseName string = 'ChatHistory'
 param cosmosDbContainerName string = 'Prompts'
@@ -19,7 +19,7 @@ var resourceToken = toLower(uniqueString(subscription().id, environmentName, loc
 module vnet '../module/vnet.bicep' = {
   name: 'vnet'
   params: {
-    enviromentName: environmentName
+    environmentName: environmentName
     hubVnetEnabled: hubVnetEnabled
     spokeVnetEnabled:spokeVnetEnabled
     location: location
@@ -38,11 +38,12 @@ module cosmosDb '../module/cosmosdb.bicep' = {
   }
 }
 
+
 module cosmosDBPrivateEndpoint '../module/private-endpoint.bicep' = {
   name: 'cosmos-private-endpoint'
   params: {
     location: location
-    name: cosmosDb.outputs.name
+    name: cosmosDb.outputs.accountName
     subnetId: vnet.outputs.OUTPUT_PRIVATEENDPOINT_SUBNET_ID
     privateLinkServiceId: cosmosDb.outputs.id
     privateLinkServiceGroupIds: ['SQL']

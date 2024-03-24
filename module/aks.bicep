@@ -6,7 +6,7 @@ param clusterName string = 'aksTestcluster'
 param location string = resourceGroup().location
 
 @description('Optional DNS prefix to use with hosted Kubernetes API server FQDN.')
-param dnsPrefix string = '${clusterName}-dns'
+param dnsPrefix string
 
 @description('Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize.')
 @minValue(0)
@@ -27,20 +27,43 @@ param linuxAdminUsername string = 'adminuser'
 // @description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
 // param sshRSAPublicKey string
 
-module aks '../module/aks.bicep' = {
-  name: 'aks'
-  params: {
-    clusterName: clusterName
-    location: location
-    dnsPrefix: dnsPrefix
-    osDiskSizeGB: osDiskSizeGB
-    agentCount: agentCount
-    agentVMSize: agentVMSize
-    linuxAdminUsername: linuxAdminUsername
-    //sshRSAPublicKey: sshRSAPublicKey
-  }
+resource sshPublicKey 'Microsoft.Compute/sshPublicKeys@2020-06-01' = {
+  name: 'sshPublicKey'
+  location: location
 }
 
+resource aks 'Microsoft.ContainerService/managedClusters@2022-05-02-preview' = {
+  name: clusterName
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    dnsPrefix: dnsPrefix
+    agentPoolProfiles: [
+      {
+        name: 'agentpool'
+        osDiskSizeGB: osDiskSizeGB
+        count: agentCount
+        vmSize: agentVMSize
+        osType: 'Linux'
+        mode: 'System'
+      }
+    ]
+    linuxProfile: {
+      adminUsername: linuxAdminUsername
+      ssh: {
+        publicKeys: [
+          {
+            keyData: sshPublicKey.properties.publicKey
+          }
+        ]
+      }
+    }
+  }
+  dependsOn: [
+    sshPublicKey
+  ]
+}
 
-
-output controlPlaneFQDN string = aks.outputs.controlPlaneFQDN
+output controlPlaneFQDN string = aks.properties.fqdn

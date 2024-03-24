@@ -1,6 +1,9 @@
+//targetScope = 'subscription'
+
 //Parameters
 @description('Location for all resources')
-param location string = resourceGroup().location
+//param location string = resourceGroup().location
+param location string = 'japaneast'
 
 @description('Enviroment name')
 param enviroment string = 'poc'
@@ -17,12 +20,17 @@ param spokeVnetEnabled bool = true
 @description('Specifies whether creating the bastion resource or not.')
 param bastionEnabled bool = true
 
-
+// Organize resources in a resource group
+// resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+//   name: 'rg-bicep-scope'
+//   location: location
+// }
 
 //Resources
 
-// Deploy vNet
+//Deploy vNet
 module vNetModule './modules/vnet.bicep' = if (vNetEnabled) {
+  //scope: resourceGroup
   name: 'hubVnet'
   params: {
     location: location
@@ -35,16 +43,16 @@ module vNetModule './modules/vnet.bicep' = if (vNetEnabled) {
 
 
 //Deploy Azure Bastion
-module bastionModule './modules/bastion.bicep' = if (bastionEnabled) {
-  name: 'bastion'
-  params: {
-    location: location
-    enviroment: enviroment
-    hubVnetName:vNetModule.outputs.OUTPUT_HUB_VNET_NAME
-    AzureBastionSubnet:vNetModule.outputs.OUTPUT_BASTION_SUBNET_NAME
-    bastionEnabled:bastionEnabled
-  }
-  dependsOn: [
-    vNetModule
-  ]
-}
+// module bastionModule './modules/bastion.bicep' = if (bastionEnabled) {
+//   name: 'bastion'
+//   params: {
+//     location: location
+//     enviroment: enviroment
+//     hubVnetName:vNetModule.outputs.OUTPUT_HUB_VNET_NAME
+//     AzureBastionSubnet:vNetModule.outputs.OUTPUT_BASTION_SUBNET_NAME
+//     bastionEnabled:bastionEnabled
+//   }
+//   dependsOn: [
+//     vNetModule
+//   ]
+// }

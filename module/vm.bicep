@@ -2,7 +2,7 @@
 @description('Location for all resources')
 param location string
 @description('Enviroment name')
-param enviroment string
+param environmentName string
 @description('VM Number')
 param vmNumber int
 @description('VM Admin Username')
@@ -18,28 +18,29 @@ param vm_subnet_id string
 //  var spokeVnetName = 'vnet-spoke-${enviroment}'
 //  var vmSubnetName = 'VmSubnet'
  // VM variables
- var VM_NAME = 'vm-${enviroment}-${vmNumber}'
+ var VM_NAME = 'vm-${environmentName}-${vmNumber}'
  var VM_SIZE = 'Standard_B1s'
  var VM_IMAGE_PUBLISHER = 'Canonical'
  var VM_IMAGE_OFFER = 'UbuntuServer'
  var VM_IMAGE_SKU = '18.04-LTS'
  var VM_IMAGE_VERSION = 'latest'
- var VM_OS_DISK_NAME = 'osdisk-${enviroment}-${VM_NAME}'
+ var VM_OS_DISK_NAME = 'osdisk-${environmentName}-${VM_NAME}'
  var VM_OS_DISK_CREATE_OPTION = 'FromImage'
  var VM_OS_DISK_CACHING = 'ReadWrite'
  var VM_OS_MANAGED_DISK_REDUNDANCY = 'Standard_LRS'
- var VM_DATA_DISK_NAME = 'datadisk-${enviroment}-${VM_NAME}'
+ var VM_OS_DISK_SIZE = 60
+ var VM_DATA_DISK_NAME = 'datadisk-${environmentName}-${VM_NAME}'
  var VM_DATA_DISK_SIZE = 1023
  var VM_DATA_DISK_CREATE_OPTION = 'Empty'
  var VM_DATA_DISK_CACHING = 'ReadOnly'
  var VM_DATA_DISK_LUN = 0
  var VM_DATA_MANAGED_DISK_REDUNDANCY = 'StandardSSD_LRS'
  //nic variables
- var VM_NIC_NAME = 'nic-${enviroment}-${VM_NAME}'
+ var VM_NIC_NAME = 'nic-${environmentName}-${VM_NAME}'
  var IP_CONFIG_NAME = 'ipconfig1'
  var PRIVATE_IP_AllOCATION_METHOD = 'Dynamic'
 //ManagedID variables
- var MANAGED_IDENTITY_NAME = 'managedIdentity-${enviroment}-${VM_NAME}' 
+ var MANAGED_IDENTITY_NAME = 'managedIdentity-${environmentName}-${VM_NAME}' 
 
 
 //Resources 
@@ -71,6 +72,18 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   }
 }
 
+//Deploy os disk
+// resource disk 'Microsoft.Compute/disks@2021-04-01' = {
+//   name: VM_OS_DISK_NAME
+//   location: location
+//   properties: {
+//     creationData: {
+//       createOption: 'Empty'
+//     }
+//     diskSizeGB: VM_OS_DISK_SIZE
+//   }
+// }
+
 //Deploy vm
 resource vm 'Microsoft.Compute/virtualMachines@2022-11-01' = {
   name: VM_NAME
@@ -89,10 +102,13 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-11-01' = {
       osDisk: {
         name: VM_OS_DISK_NAME
         createOption: VM_OS_DISK_CREATE_OPTION
+        osType: 'Linux'
         caching: VM_OS_DISK_CACHING
         managedDisk: {
+          //id: disk.id
           storageAccountType: VM_OS_MANAGED_DISK_REDUNDANCY
         }
+        diskSizeGB: VM_OS_DISK_SIZE
       }
       dataDisks: [
         {

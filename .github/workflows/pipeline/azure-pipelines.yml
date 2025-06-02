@@ -8,8 +8,8 @@ variables:
   resourceGroupName: 'rg-bicep-pipeline'
   location: 'japaneast'
   templateNetworkFile: '02_network_demo/main.bicep'
-  templateVmInitFile: '03_vm_demo/02_file section/01_main_init.bicep'
-  parametersVmInitFile: '03_vm_demo/02_file section/parameter.bicepparam'
+  templateVmInitFile: '03_vm_demo/02_multiFiles/01_main_init.bicep'
+  parametersVmInitFile: '03_vm_demo/02_multiFiles/parameter.bicepparam'
 
 stages:
   - stage: Lint
@@ -76,7 +76,7 @@ stages:
                 az deployment group what-if \
                   --resource-group "$(resourceGroupName)" \
                   --template-file "$(templateVmInitFile)" \
-                  --parameters-file "@$(parametersVmInitFile)"
+                  --parameters "@$(parametersVmInitFile)"
 
 
   - stage: Deploy

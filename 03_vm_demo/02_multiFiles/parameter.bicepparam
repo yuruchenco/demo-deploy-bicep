@@ -1,5 +1,3 @@
-using '01_main_init.bicep'
-
 param location  = 'japaneast'
 
 @description('Specific Enviroment name')

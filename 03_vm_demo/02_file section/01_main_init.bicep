@@ -32,7 +32,7 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' existing 
 }
 
 
-module vmModule '../../Module/vm.bicep' = [for i in range(0, vmNumber): { 
+module vmModule '../../module/vm.bicep' = [for i in range(0, vmNumber): { 
   name: 'vmModule-${i}'
   params: {
     location: location

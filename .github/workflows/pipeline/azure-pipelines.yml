@@ -48,7 +48,7 @@ stages:
                 az deployment group validate \
                   --resource-group "$(resourceGroupName)" \
                   --template-file "$(templateVmInitFile)" \
-                  --parameters "@$(parametersVmInitFile)"
+                  --parameters "$(parametersVmInitFile)"
 
 
   - stage: WhatIf
@@ -76,7 +76,7 @@ stages:
                 az deployment group what-if \
                   --resource-group "$(resourceGroupName)" \
                   --template-file "$(templateVmInitFile)" \
-                  --parameters "@$(parametersVmInitFile)"
+                  --parameters "$(parametersVmInitFile)"
 
 
   - stage: Deploy

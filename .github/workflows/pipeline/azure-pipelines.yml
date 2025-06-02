@@ -17,11 +17,11 @@ stages:
       - job: LintBicep
         steps:
           - script: |
-              az bicep build --file $(templateNetworkFile)
+              az bicep build --file "$(templateNetworkFile)""
             displayName: 'Lint Network Bicep File'
           - script: |
-              az bicep build --file $(templateVmInitFile)
-            displayName: 'Lint Network Bicep File'
+              az bicep build --file "$(templateVmInitFile)""
+            displayName: 'Lint VmInit Bicep File'
 
   - stage: Validate
     dependsOn: Lint

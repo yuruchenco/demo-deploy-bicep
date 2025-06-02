@@ -2,7 +2,7 @@ trigger:
   - main
 
 variables:
-  azureServiceConnection: 'github.com_yuruchenco'
+  azureServiceConnection: 'arm-yuichimasuda'
   resourceGroupName: 'rg-bicep-pipeline'
   location: 'japaneast'
   templateFile: 'main.bicep'

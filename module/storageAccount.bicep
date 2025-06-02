@@ -16,7 +16,8 @@ param storagePrefix string
 param storageSKU string
 param location string
 param publicNetworkAccess string
-
+param vnetname string
+param subnetname string
 
 //storage account variables
 var uniqueStorageName = '${storagePrefix}${uniqueString(resourceGroup().id)}'
@@ -30,10 +31,20 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   kind: 'StorageV2'
   properties: {
     supportsHttpsTrafficOnly: true
-    publicNetworkAccess: publicNetworkAccess
+    //publicNetworkAccess: publicNetworkAccess
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: subnetname
+          action: 'Allow'
+        }
+      ]
+    }
   }
 }
 
-output storageEndpoint object = storage.properties.primaryEndpoints
-output NAME string = storage.name
-output ID string = storage.id
+output OUTPUT_STORAGE_ENDPOINT object = storage.properties.primaryEndpoints
+output OUTPUT_NAME string = storage.name
+output OUTPUT_ID string = storage.id

@@ -9,11 +9,11 @@ param environmentName string = 'poc'
 param vmNumber int = 1
 
 @description('Specific VM Admin Username')
-param VM_ADMIN_USERNAME string = 'azureuser'
+param vm_admin_username string
 
 @description('Specific VM Admin Password')
 @secure()
-param vm_admin_password string = 'P@ssw0rd1234'
+param vm_admin_password string
 
 @description('Specifies whether creating the vNet resource or not.')
 param vNetEnabled bool = true
@@ -38,16 +38,17 @@ module vNetModule '../Module/vnet.bicep' = if (vNetEnabled) {
   }
 }
 
-// module vmModule '../Module/vm.bicep' = [for i in range(0, vmNumber): { 
-//   name: 'vmModule-${i}'
-//   params: {
-//     location: location
-//     environmentName: environmentName
-//     vmNumber: i
-//     VM_ADMIN_USERNAME: VM_ADMIN_USERNAME
-//     vm_admin_password: vm_admin_password
-//     vm_subnet_id: vNetModule.outputs.OUTPUT_VM_SUBNET_ID
-//   }
-// }]
+
+module vmModule '../Module/vm.bicep' = [for i in range(0, vmNumber): { 
+  name: 'vmModule-${i}'
+  params: {
+    location: location
+    environmentName: environmentName
+    vmNumber: i
+    VM_ADMIN_USERNAME: vm_admin_username
+    vm_admin_password: vm_admin_password
+    vm_subnet_id: vNetModule.outputs.OUTPUT_VM_SUBNET_ID
+  }
+}]
 
 

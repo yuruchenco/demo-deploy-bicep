@@ -1,7 +1,7 @@
 targetScope = 'tenant'
  
-@description('Provide the full resource ID of billing scope to use for subscription creation.')
-param billingScope string 
+//@description('Provide the full resource ID of billing scope to use for subscription creation.')
+//param billingScope string 
 @description('The name of the main group')
 param mainManagementGroupName string = 'mg-main'
 @description('The display name for the main group')
@@ -51,24 +51,24 @@ resource mainManagementGroup 'Microsoft.Management/managementGroups@2020-02-01' 
   }
 }
  
-module subsModule '../module/subs.bicep' = [for group in managementGroups: {
-  name: 'subscriptionDeploy-${group.name}' 
-  params: {
-    subscriptions: group.subscriptions
-    billingScope: billingScope
-  }
-}]
+// module subsModule '../module/subs.bicep' = [for group in managementGroups: {
+//   name: 'subscriptionDeploy-${group.name}' 
+//   params: {
+//     subscriptions: group.subscriptions
+//     billingScope: billingScope
+//   }
+// }]
  
-module mgSubModule '../module/mg.bicep' = [for (group, i) in managementGroups: {
-  name: 'managementGroupDeploy-${group.name}'
-  scope: managementGroup(mainManagementGroupName)
-  params: {
-    groupName: group.name
-    groupDisplayName: group.displayName
-    parentId: mainManagementGroup.id
-    subscriptionIds: subsModule[i].outputs.subscriptionIds
-  }
-  dependsOn: [
-    subsModule
-  ]
-}]
+// module mgSubModule '../module/mg.bicep' = [for (group, i) in managementGroups: {
+//   name: 'managementGroupDeploy-${group.name}'
+//   scope: managementGroup(mainManagementGroupName)
+//   params: {
+//     groupName: group.name
+//     groupDisplayName: group.displayName
+//     parentId: mainManagementGroup.id
+//     subscriptionIds: subsModule[i].outputs.subscriptionIds
+//   }
+//   dependsOn: [
+//     subsModule
+//   ]
+// }]

@@ -6,7 +6,7 @@
 param location string = 'japaneast'
 
 @description('Enviroment name')
-param enviroment string = 'poc'
+param environmentName string = 'poc'
 
 @description('Specifies whether creating the vNet resource or not.')
 param vNetEnabled bool = true
@@ -29,12 +29,12 @@ param bastionEnabled bool = true
 //Resources
 
 //Deploy vNet
-module vNetModule './modules/vnet.bicep' = if (vNetEnabled) {
+module vNetModule '../module/vnet.bicep' = if (vNetEnabled) {
   //scope: resourceGroup
-  name: 'hubVnet'
+  name: 'Vnet'
   params: {
     location: location
-    enviroment: enviroment
+    environmentName: environmentName
     hubVnetEnabled:hubVnetEnabled
     spokeVnetEnabled:spokeVnetEnabled
   }

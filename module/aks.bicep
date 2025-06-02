@@ -24,15 +24,15 @@ param agentVMSize string = 'standard_d2s_v3'
 @description('User name for the Linux Virtual Machines.')
 param linuxAdminUsername string = 'adminuser'
 
-// @description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
-// param sshRSAPublicKey string
+@description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
+param sshRSAPublicKey string
 
-resource sshPublicKey 'Microsoft.Compute/sshPublicKeys@2020-06-01' = {
-  name: 'sshPublicKey'
-  location: location
-}
+// resource sshPublicKey 'Microsoft.Compute/sshPublicKeys@2020-06-01' = {
+//   name: 'sshPublicKey'
+//   location: location
+// }
 
-resource aks 'Microsoft.ContainerService/managedClusters@2022-05-02-preview' = {
+resource aks 'Microsoft.ContainerService/managedClusters@2022-01-01' = {
   name: clusterName
   location: location
   identity: {
@@ -55,15 +55,12 @@ resource aks 'Microsoft.ContainerService/managedClusters@2022-05-02-preview' = {
       ssh: {
         publicKeys: [
           {
-            keyData: sshPublicKey.properties.publicKey
+            keyData: sshRSAPublicKey
           }
         ]
       }
     }
   }
-  dependsOn: [
-    sshPublicKey
-  ]
 }
 
 output controlPlaneFQDN string = aks.properties.fqdn

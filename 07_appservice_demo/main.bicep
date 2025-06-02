@@ -10,18 +10,23 @@ param spokeVnetEnabled bool = true
 @description('Enable private network access to the backend service')
 param isPrivateNetworkEnabled bool = true
 
-@description('Specific VM Admin Username')
-param VM_ADMIN_USERNAME string = 'azureuser'
-@description('Specific VM Admin Password')
-@secure()
-param vm_admin_password string = 'P@ssw0rd1234'
-@description('Specific VM Number')
-param vmNumber int = 1
 
 var abbrs = loadJsonContent('../abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 
+//Variables
+var VNET_SPOKE_NAME = 'vnet-spoke-${environmentName}'
+var PE_SPOKE_SUBNET_NAME = 'PrivateEndpointSubnet'
 
+ 
+resource vnet 'Microsoft.Network/virtualNetworks@2022-11-01' existing = {
+  name: VNET_SPOKE_NAME
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2022-11-01' existing = {
+  name: PE_SPOKE_SUBNET_NAME
+  parent: vnet
+}
 
 
 module appService '../module/appservice.bicep' = {
@@ -39,34 +44,7 @@ module appService '../module/appservice.bicep' = {
   }
 }
 
-// ================================================================================================
-// VIRTUAL MACHINE for Connection Test
-// ================================================================================================
-module vmModule '../module/vm.bicep' = [for i in range(0, vmNumber): { 
-  name: 'vmModule-${i}'
-  params: {
-    location: location
-    enviroment: environmentName
-    vmNumber: i
-    VM_ADMIN_USERNAME: VM_ADMIN_USERNAME
-    vm_admin_password: vm_admin_password
-    vm_subnet_id: vnet.outputs.OUTPUT_VM_SUBNET_ID
-  }
-}]
 
-
-// ================================================================================================
-// NETWORK
-// ================================================================================================
-module vnet '../module/vnet.bicep' = {
-  name: 'vnet'
-  params: {
-    enviromentName: environmentName
-    hubVnetEnabled: hubVnetEnabled
-    spokeVnetEnabled:spokeVnetEnabled
-    location: location
-  }
-}
 
 // ================================================================================================
 // PRIVATE ENDPOINT
@@ -76,11 +54,11 @@ module appServicePrivateEndopoint '../module/private-endpoint.bicep' = {
   params: {
     location: location
     name: appService.outputs.OUTPUT_APPSERVICE_NAME
-    subnetId: vnet.outputs.OUTPUT_PRIVATEENDPOINT_SUBNET_ID
+    subnetId: subnet.id
     privateLinkServiceId: appService.outputs.OUTPUT_APPSERVICE_ID
     privateLinkServiceGroupIds: ['sites']
     dnsZoneName: 'azurewebsites.net'
-    linkVnetId: vnet.outputs.OUTPUT_SPOKE_VNET_ID
+    linkVnetId: vnet.id
     isPrivateNetworkEnabled: isPrivateNetworkEnabled
   }
   dependsOn: [

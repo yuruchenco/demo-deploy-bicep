@@ -14,10 +14,6 @@ param vm_subnet_id string
 
 
 //Variables
- //vnet variables
-//  var spokeVnetName = 'vnet-spoke-${enviroment}'
-//  var vmSubnetName = 'VmSubnet'
- // VM variables
  var VM_NAME = 'vm-${environmentName}-${vmNumber}'
  var VM_SIZE = 'Standard_B1s'
  var VM_IMAGE_PUBLISHER = 'Canonical'
@@ -43,20 +39,14 @@ param vm_subnet_id string
  var MANAGED_IDENTITY_NAME = 'managedIdentity-${environmentName}-${VM_NAME}' 
 
 
-//Resources 
-
- // Reference the existing SpokeVNET
-// resource existingspokevnet 'Microsoft.Network/virtualNetworks@2020-05-01' existing = {
-//   name: spokeVnetName
-//   resource existingvmsubnet 'subnets' existing = {
-//     name: vmSubnetName
-//   }
-// }
 
 //Deploy nic
 resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   name: VM_NIC_NAME
   location: location
+  tags: {
+    DeptCode: 'biceptest'
+  }
   properties: {
     ipConfigurations: [
       {
@@ -72,17 +62,6 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-05-01' = {
   }
 }
 
-//Deploy os disk
-// resource disk 'Microsoft.Compute/disks@2021-04-01' = {
-//   name: VM_OS_DISK_NAME
-//   location: location
-//   properties: {
-//     creationData: {
-//       createOption: 'Empty'
-//     }
-//     diskSizeGB: VM_OS_DISK_SIZE
-//   }
-// }
 
 //Deploy vm
 resource vm 'Microsoft.Compute/virtualMachines@2022-11-01' = {
@@ -146,23 +125,25 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-
   location: location
 }
 
-// resource linuxAgent 'Microsoft.Compute/virtualMachines/extensions@2023-07-01' = {
-//   name: 'AzureMonitorLinuxAgent'
-//   parent: vm
-//   location: location
-//   properties: {
-//     publisher: 'Microsoft.Azure.Monitor'
-//     type: 'AzureMonitorLinuxAgent'
-//     typeHandlerVersion: '1.21'
-//     autoUpgradeMinorVersion: true
-//     enableAutomaticUpgrade: true
-//     settings: {
-//       authentication: {
-//         managedIdentity: {
-//           'identifier-name': 'mi_res_id'
-//           'identifier-value': managedIdentity.id
-//         }
-//       }
-//     }
-//   }
-// }
+
+resource linuxAgent 'Microsoft.Compute/virtualMachines/extensions@2023-07-01' = {
+  name: 'AzureMonitorLinuxAgent'
+  parent: vm
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Monitor'
+    type: 'AzureMonitorLinuxAgent'
+    typeHandlerVersion: '1.21'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+    settings: {
+      authentication: {
+        managedIdentity: {
+          'identifier-name': 'mi_res_id'
+          'identifier-value': managedIdentity.id
+        }
+      }
+    }
+  }
+}
+

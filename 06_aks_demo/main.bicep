@@ -24,8 +24,8 @@ param agentVMSize string = 'standard_d2s_v3'
 @description('User name for the Linux Virtual Machines.')
 param linuxAdminUsername string = 'adminuser'
 
-// @description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
-// param sshRSAPublicKey string
+@description('Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example \'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm\'')
+param sshRSAPublicKey string
 
 module aks '../module/aks.bicep' = {
   name: 'aks'
@@ -37,7 +37,7 @@ module aks '../module/aks.bicep' = {
     agentCount: agentCount
     agentVMSize: agentVMSize
     linuxAdminUsername: linuxAdminUsername
-    //sshRSAPublicKey: sshRSAPublicKey
+    sshRSAPublicKey: sshRSAPublicKey
   }
 }
 

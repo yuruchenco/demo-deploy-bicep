@@ -35,8 +35,8 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment group validate \
-                  --resource-group $(resourceGroupName) \
-                  --template-file $(templateNetworkFile)
+                  --resource-group "$(resourceGroupName)" \
+                  --template-file "$(templateNetworkFile)"
       - job: ValidateVmInitTemplate
         steps:
           - task: AzureCLI@2
@@ -46,9 +46,9 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment group validate \
-                  --resource-group $(resourceGroupName) \
-                  --template-file $(templateVmInitFile) \
-                  --parameters @$(parametersVmInitFile)
+                  --resource-group "$(resourceGroupName)" \
+                  --template-file "$(templateVmInitFile)" \
+                  --parameters "@$(parametersVmInitFile)"
 
 
   - stage: WhatIf
@@ -63,8 +63,8 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment group what-if \
-                  --resource-group $(resourceGroupName) \
-                  --template-file $(templateNetworkFile)
+                  --resource-group "$(resourceGroupName)" \
+                  --template-file "$(templateNetworkFile)"
       - job: WhatIfDeploymentVmInit
         steps:
           - task: AzureCLI@2
@@ -74,9 +74,9 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment group what-if \
-                  --resource-group $(resourceGroupName) \
-                  --template-file $(templateVmInitFile) \
-                  --parameters-file @$(parametersVmInitFile)
+                  --resource-group "$(resourceGroupName)" \
+                  --template-file "$(templateVmInitFile)" \
+                  --parameters-file "@$(parametersVmInitFile)"
 
 
   - stage: Deploy
@@ -89,10 +89,10 @@ stages:
               deploymentScope: 'Resource Group'
               azureResourceManagerConnection: $(azureServiceConnection)
               action: 'Create Or Update Resource Group'
-              resourceGroupName: $(resourceGroupName)
+              resourceGroupName: "$(resourceGroupName)"
               location: $(location)
               templateLocation: 'Linked artifact'
-              csmFile: $(templateNetworkFile)
+              csmFile: "$(templateNetworkFile)"
               deploymentMode: 'Incremental'
       - job: DeployVmInitResources
         dependsOn: DeployNetworkResources
@@ -102,9 +102,9 @@ stages:
               deploymentScope: 'Resource Group'
               azureResourceManagerConnection: $(azureServiceConnection)
               action: 'Create Or Update Resource Group'
-              resourceGroupName: $(resourceGroupName)
+              resourceGroupName: "$(resourceGroupName)"
               location: $(location)
               templateLocation: 'Linked artifact'
-              csmFile: $(templateVmInitFile)
-              csmParametersFile: $(parametersVmInitFile)
+              csmFile: "$(templateVmInitFile)"
+              csmParametersFile: "$(parametersVmInitFile)"
               deploymentMode: 'Incremental'

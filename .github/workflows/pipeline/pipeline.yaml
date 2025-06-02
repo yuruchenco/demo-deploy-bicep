@@ -1,0 +1,67 @@
+trigger:
+  - main
+
+variables:
+  azureServiceConnection: 'github.com_yuruchenco'
+  resourceGroupName: 'rg-bicep-pipeline'
+  location: 'japaneast'
+  templateFile: 'main.bicep'
+  parametersFile: 'main.bicepparam'
+
+stages:
+  - stage: Lint
+    jobs:
+      - job: LintBicep
+        steps:
+          - script: |
+              az bicep build --file $(templateFile)
+            displayName: 'Lint Bicep File'
+
+  - stage: Validate
+    dependsOn: Lint
+    jobs:
+      - job: ValidateTemplate
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group validate \
+                  --resource-group $(resourceGroupName) \
+                  --template-file $(templateFile) \
+                  --parameters @$(parametersFile)
+
+  - stage: WhatIf
+    dependsOn: Validate
+    jobs:
+      - job: WhatIfDeployment
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group what-if \
+                  --resource-group $(resourceGroupName) \
+                  --template-file $(templateFile) \
+                  --parameters @$(parametersFile)
+
+  - stage: Deploy
+    dependsOn: WhatIf
+    jobs:
+      - job: DeployResources
+        steps:
+          - task: AzureResourceManagerTemplateDeployment@3
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: $(azureServiceConnection)
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: $(resourceGroupName)
+              location: $(location)
+              templateLocation: 'Linked artifact'
+              csmFile: $(templateFile)
+              csmParametersFile: $(parametersFile)
+              deploymentMode: 'Incremental'

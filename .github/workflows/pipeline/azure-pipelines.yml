@@ -5,7 +5,7 @@ variables:
   azureServiceConnection: 'arm-yuichimasuda'
   resourceGroupName: 'rg-bicep-pipeline'
   location: 'japaneast'
-  templateFile: 'main.bicep'
+  templateFile: '02_network_demo/main.bicep'
   parametersFile: 'main.bicepparam'
 
 stages:
@@ -30,8 +30,8 @@ stages:
               inlineScript: |
                 az deployment group validate \
                   --resource-group $(resourceGroupName) \
-                  --template-file $(templateFile) \
-                  --parameters @$(parametersFile)
+                  --template-file $(templateFile)
+
 
   - stage: WhatIf
     dependsOn: Validate
@@ -46,8 +46,8 @@ stages:
               inlineScript: |
                 az deployment group what-if \
                   --resource-group $(resourceGroupName) \
-                  --template-file $(templateFile) \
-                  --parameters @$(parametersFile)
+                  --template-file $(templateFile)
+
 
   - stage: Deploy
     dependsOn: WhatIf
@@ -63,5 +63,4 @@ stages:
               location: $(location)
               templateLocation: 'Linked artifact'
               csmFile: $(templateFile)
-              csmParametersFile: $(parametersFile)
               deploymentMode: 'Incremental'

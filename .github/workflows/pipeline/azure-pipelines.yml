@@ -1,12 +1,15 @@
 trigger:
   - main
 
+
+
 variables:
   azureServiceConnection: 'arm-yuichimasuda'
   resourceGroupName: 'rg-bicep-pipeline'
   location: 'japaneast'
-  templateFile: '02_network_demo/main.bicep'
-  parametersFile: 'main.bicepparam'
+  templateNetworkFile: '02_network_demo/main.bicep'
+  templateVmInitFile: '03_vm_demo/02_file section/01_main_init.bicep'
+  parametersVmInitFile: '03_vm_demo/02_file section/parameter.bicepparam'
 
 stages:
   - stage: Lint
@@ -14,13 +17,16 @@ stages:
       - job: LintBicep
         steps:
           - script: |
-              az bicep build --file $(templateFile)
-            displayName: 'Lint Bicep File'
+              az bicep build --file $(templateNetworkFile)
+            displayName: 'Lint Network Bicep File'
+          - script: |
+              az bicep build --file $(templateVmInitFile)
+            displayName: 'Lint Network Bicep File'
 
   - stage: Validate
     dependsOn: Lint
     jobs:
-      - job: ValidateTemplate
+      - job: ValidateNetworkTemplate
         steps:
           - task: AzureCLI@2
             inputs:
@@ -30,13 +36,25 @@ stages:
               inlineScript: |
                 az deployment group validate \
                   --resource-group $(resourceGroupName) \
-                  --template-file $(templateFile)
+                  --template-file $(templateNetworkFile)
+      - job: ValidateVmInitTemplate
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group validate \
+                  --resource-group $(resourceGroupName) \
+                  --template-file $(templateVmInitFile) \
+                  --parameters @$(parametersVmInitFile)
 
 
   - stage: WhatIf
     dependsOn: Validate
     jobs:
-      - job: WhatIfDeployment
+      - job: WhatIfDeploymentNetwork
         steps:
           - task: AzureCLI@2
             inputs:
@@ -46,13 +64,25 @@ stages:
               inlineScript: |
                 az deployment group what-if \
                   --resource-group $(resourceGroupName) \
-                  --template-file $(templateFile)
+                  --template-file $(templateNetworkFile)
+      - job: WhatIfDeploymentVmInit
+        steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(azureServiceConnection)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group what-if \
+                  --resource-group $(resourceGroupName) \
+                  --template-file $(templateVmInitFile) \
+                  --parameters-file @$(parametersVmInitFile)
 
 
   - stage: Deploy
     dependsOn: WhatIf
     jobs:
-      - job: DeployResources
+      - job: DeployNetworkResources
         steps:
           - task: AzureResourceManagerTemplateDeployment@3
             inputs:
@@ -62,5 +92,19 @@ stages:
               resourceGroupName: $(resourceGroupName)
               location: $(location)
               templateLocation: 'Linked artifact'
-              csmFile: $(templateFile)
+              csmFile: $(templateNetworkFile)
+              deploymentMode: 'Incremental'
+      - job: DeployVmInitResources
+        dependsOn: DeployNetworkResources
+        steps:
+          - task: AzureResourceManagerTemplateDeployment@3
+            inputs:
+              deploymentScope: 'Resource Group'
+              azureResourceManagerConnection: $(azureServiceConnection)
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: $(resourceGroupName)
+              location: $(location)
+              templateLocation: 'Linked artifact'
+              csmFile: $(templateVmInitFile)
+              csmParametersFile: $(parametersVmInitFile)
               deploymentMode: 'Incremental'

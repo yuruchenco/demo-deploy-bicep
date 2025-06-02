@@ -1,7 +1,8 @@
 trigger:
   - main
 
-
+pool:
+  name: 'self-hosted agent pool azure pipeline'
 
 variables:
   azureServiceConnection: 'arm-yuichimasuda'

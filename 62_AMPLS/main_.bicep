@@ -135,6 +135,11 @@ resource peDnsGroupForAmpls 'Microsoft.Network/privateEndpoints/privateDnsZoneGr
       }
     ]
   }
+  dependsOn: [
+    PeAmpls
+    privateDnsZoneForAmpls
+    privateDnsZoneLink
+  ]
 }
 
 

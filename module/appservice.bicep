@@ -19,7 +19,7 @@ param runtime string = 'node'
 
 var functionAppName = appserviceName
 var applicationInsightsName = appserviceName
-var storageAccountName = '${uniqueString(resourceGroup().id)}azfunctions'
+var storageAccountName = toLower('${uniqueString(resourceGroup().id, appserviceName)}sa')
 var functionWorkerRuntime = runtime
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
@@ -31,7 +31,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   kind: 'Storage'
   properties: {
     supportsHttpsTrafficOnly: true
-    defaultToOAuthAuthentication: true
+    //defaultToOAuthAuthentication: true
   }
 }
 
@@ -88,6 +88,11 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
     httpsOnly: true
     publicNetworkAccess: publicNetworkAccess
   }
+  dependsOn: [
+    storageAccount
+    appServicePlan
+    applicationInsights
+  ]
 }
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {

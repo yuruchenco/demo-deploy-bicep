@@ -18,7 +18,7 @@ resource vm_name 'Microsoft.Compute/virtualMachines@2022-11-01' existing = {
 
 
 // deploy action groups.
-module ag '../../module/ag.bicep' = {
+module ag '../module/ag.bicep' = {
   name: 'Deploy_action_groups'
   params: {
     emailAddress: emailAddress
@@ -30,7 +30,7 @@ module ag '../../module/ag.bicep' = {
 
 // deploy alert rule.
 // deploy alert rule SingleResourceMultipleMetricCriter
-module alSingleResourceMultipleMetricCriter '../../module/alSingleResourceMultipleMetricCriter.bicep' = {
+module alSingleResourceMultipleMetricCriter '../module/alSingleResourceMultipleMetricCriter.bicep' = {
   name: 'Deploy_alert_rule'
   params: {
     location: location

@@ -7,37 +7,51 @@ param systemCode string = 'demo'
 param environmentName string = 'poc'
 
 // Parameters for action groups
-param emailAddress string = 'yuichimasuda@microsoft.com'
-param emailReceiversName string = 'yuichimasuda'
+var APP_SERVICE_NAME = 'acrdemomasuda'
+var ACTION_GROUP_NAME = 'ag-demo-poc'
 
-var VM_NAME = 'vm-poc-0'
+// reference to existing action group
+resource ag 'Microsoft.Insights/actionGroups@2022-06-01' existing = {
+  name: ACTION_GROUP_NAME
+}
 
-resource vm_name 'Microsoft.Compute/virtualMachines@2022-11-01' existing = {
-  name: VM_NAME
+resource app_service 'Microsoft.Web/sites@2022-09-01' existing = {
+  name: APP_SERVICE_NAME
+  scope: resourceGroup('rg-container-demo')
 }
 
 
-// deploy action groups.
-module ag '../module/ag.bicep' = {
-  name: 'Deploy_action_groups'
+// deploy alert rule.
+// deploy alert rule AverageResponseTime
+module AverageResponseTime '../module/metricAlert/AverageResponseTime.bicep' = {
+  name: 'Deploy_alert_rule_AverageResponseTime'
   params: {
-    emailAddress: emailAddress
-    emailReceiversName: emailReceiversName
-    env: environmentName
-    systemCode: systemCode
+    alertName:'AverageResponseTimeAlert-${app_service.name}-${environmentName}-${systemCode}'
+    targetResourceId: [app_service.id]
+    targetResourceRegion: location
+    targetResourceType: app_service.type
   }
 }
 
-// deploy alert rule.
-// deploy alert rule SingleResourceMultipleMetricCriter
-module alSingleResourceMultipleMetricCriter '../module/alSingleResourceMultipleMetricCriter.bicep' = {
-  name: 'Deploy_alert_rule'
+// deploy alert rule Http401
+module Http401 '../module/metricAlert/Http401.bicep' = {
+  name: 'Deploy_alert_rule_Http401'
   params: {
-    location: location
-    env: environmentName
-    systemCode: systemCode
-    resourceId: vm_name.id
-    actionGroupId: ag.outputs.id
+    alertName:'Http401Alert-${app_service.name}-${environmentName}-${systemCode}'
+    targetResourceId: [app_service.id]
+    targetResourceRegion: location
+    targetResourceType: app_service.type
+  }
+}
+
+//deploy alert rule Http406
+module Http406 '../module/metricAlert/Http406.bicep' = {
+  name: 'Deploy_alert_rule_Http406'
+  params: {
+    alertName:'Http406Alert-${app_service.name}-${environmentName}-${systemCode}'
+    targetResourceId: [app_service.id]
+    targetResourceRegion: location
+    targetResourceType: app_service.type
   }
 }
 

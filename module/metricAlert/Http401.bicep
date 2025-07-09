@@ -85,6 +85,9 @@ param currentDateTimeUtcNow string = utcNow()
 ])
 param telemetryOptOut string = 'No'
 
+@description('action group id')
+param actionGroupId string
+
 resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   name: alertName
   location: 'global'
@@ -114,6 +117,11 @@ resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
         }
       ]
     }
+    actions: [
+      {
+        actionGroupId: actionGroupId
+      }
+    ]
   }
 }
 

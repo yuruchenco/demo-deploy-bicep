@@ -8,7 +8,7 @@ param environmentName string = 'poc'
 
 // Parameters for action groups
 var APP_SERVICE_NAME = 'acrdemomasuda'
-var ACTION_GROUP_NAME = 'ag-demo-poc'
+var ACTION_GROUP_NAME = 'RecommendedAlertRules-AG-1'
 
 // reference to existing action group
 resource ag 'Microsoft.Insights/actionGroups@2022-06-01' existing = {
@@ -30,6 +30,7 @@ module AverageResponseTime '../module/metricAlert/AverageResponseTime.bicep' = {
     targetResourceId: [app_service.id]
     targetResourceRegion: location
     targetResourceType: app_service.type
+    actionGroupId: ag.id
   }
 }
 
@@ -41,6 +42,7 @@ module Http401 '../module/metricAlert/Http401.bicep' = {
     targetResourceId: [app_service.id]
     targetResourceRegion: location
     targetResourceType: app_service.type
+    actionGroupId: ag.id
   }
 }
 
@@ -52,6 +54,7 @@ module Http406 '../module/metricAlert/Http406.bicep' = {
     targetResourceId: [app_service.id]
     targetResourceRegion: location
     targetResourceType: app_service.type
+    actionGroupId: ag.id
   }
 }
 

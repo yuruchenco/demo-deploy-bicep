@@ -23,7 +23,7 @@ resource app_service 'Microsoft.Web/sites@2022-09-01' existing = {
 
 // deploy alert rule.
 // deploy alert rule AverageResponseTime
-module AverageResponseTime '../module/metricAlert/AverageResponseTime.bicep' = {
+module AverageResponseTime '../module/metricAlert/HttpResponseTime.bicep' = {
   name: 'Deploy_alert_rule_AverageResponseTime'
   params: {
     alertName:'AverageResponseTimeAlert-${app_service.name}-${environmentName}-${systemCode}'

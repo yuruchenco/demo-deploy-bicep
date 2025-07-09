@@ -108,7 +108,7 @@ resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
       allOf: [
         {
           name: '1st criterion'
-          metricName: 'AverageResponseTime'
+          metricName: 'HttpResponseTime'
           dimensions: []
           operator: operator
           threshold: threshold

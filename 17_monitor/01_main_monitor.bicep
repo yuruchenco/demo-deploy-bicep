@@ -11,6 +11,7 @@ var APP_SERVICE_NAME = 'acrdemomasuda'
 var SQL_SERVER_NAME = 'demo-masuda-sql-server'
 var SQL_DATABASE_NAME = 'demo-sql-database'
 var SEARCH_SERVICE_NAME = 'as-masuda-demo'
+var COGNITIVE_SERVICE_NAME = 'openai-demo-masuda'
 var ACTION_GROUP_NAME = 'RecommendedAlertRules-AG-1'
 
 // reference to existing action group
@@ -36,6 +37,11 @@ resource sql_database 'Microsoft.Sql/servers/databases@2021-11-01' existing = {
 resource search_service 'Microsoft.Search/searchServices@2020-08-01' existing = {
   name: SEARCH_SERVICE_NAME
   scope: resourceGroup('rg-aisearch')
+}
+
+resource cognitive_service 'Microsoft.CognitiveServices/accounts@2021-10-01' existing = {
+  name: COGNITIVE_SERVICE_NAME
+  scope: resourceGroup('rg-speech-service')
 }
 
 // deploy alert rule.
@@ -77,7 +83,7 @@ module Http406 '../module/metricAlert/AppService/Http406.bicep' = {
   }
 }
 
-//Alert for SQL Satabase
+//Alert for SQL Database
 //deploy alert rule BlockedByFirewall
 module BlockedByFirewall '../module/metricAlert/SQLServer/BlockedByFirewall.bicep' = {
   name: 'Deploy_alert_rule_BlockedByFirewall'
@@ -149,3 +155,17 @@ module ThrottledSearchQueriesPercentage '../module/metricAlert/SearchService/Thr
     actionGroupId: ag.id
   }
 } 
+
+
+//Alert for Cognitive Service
+//deploy TokenTransaction
+module TokenTransaction '../module/metricAlert/CognitiveService/TokenTransaction.bicep' = {
+  name: 'Deploy_alert_rule_TokenTransaction'
+  params: {
+    alertName:'TokenTransactionAlert-${cognitive_service.name}-${environmentName}-${systemCode}'
+    targetResourceId: [cognitive_service.id]
+    targetResourceRegion: location
+    targetResourceType: cognitive_service.type
+    actionGroupId: ag.id
+  }
+}

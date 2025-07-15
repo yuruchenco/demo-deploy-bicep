@@ -10,7 +10,7 @@ param environmentName string = 'poc'
 var APP_SERVICE_NAME = 'acrdemomasuda'
 var SQL_SERVER_NAME = 'demo-masuda-sql-server'
 var SQL_DATABASE_NAME = 'demo-sql-database'
-var AZURE_CONTAINER_REGISTRY_NAME = 'acrdemomasuda'
+var SEARCH_SERVICE_NAME = 'as-masuda-demo'
 var ACTION_GROUP_NAME = 'RecommendedAlertRules-AG-1'
 
 // reference to existing action group
@@ -33,11 +33,10 @@ resource sql_database 'Microsoft.Sql/servers/databases@2021-11-01' existing = {
   parent: sql_server
 }
 
-resource azure_container_registry 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
-  name: AZURE_CONTAINER_REGISTRY_NAME
-  scope: resourceGroup('rg-container-demo')
+resource search_service 'Microsoft.Search/searchServices@2020-08-01' existing = {
+  name: SEARCH_SERVICE_NAME
+  scope: resourceGroup('rg-aisearch')
 }
-
 
 // deploy alert rule.
 
@@ -116,3 +115,37 @@ module TempdbDataSize '../module/metricAlert/SQLServer/TempdbDataSize.bicep' = {
 }
 
 
+//Alert for SearchService
+//deploy Activity Log alert rule SearchServiceDelete
+module ActivityLogSearchServiceDelete '../module/activityAlert/ActivityLogSearchServiceDelete.bicep' = {
+  name: 'Deploy_activity_log_alert_rule_SearchServiceDelete'
+  params: {
+    alertName:'SearchServiceDeleteAlert-${search_service.name}-${environmentName}-${systemCode}'
+    actionGroupId: ag.id
+  }
+}
+
+
+//deploy SearchLatency
+module SearchLatency '../module/metricAlert/SearchService/SearchLatency.bicep' = {
+  name: 'Deploy_alert_rule_SearchLatency'
+  params: {
+    alertName:'SearchLatencyAlert-${search_service.name}-${environmentName}-${systemCode}'
+    targetResourceId: [search_service.id]
+    targetResourceRegion: location
+    targetResourceType: search_service.type
+    actionGroupId: ag.id
+  }
+}
+
+//deploy ThrottledSearchQueriesPercentage
+module ThrottledSearchQueriesPercentage '../module/metricAlert/SearchService/ThrottledSearchQueriesPercentage.bicep' = {
+  name: 'Deploy_alert_rule_ThrottledSearchQueriesPercentage'
+  params: {
+    alertName:'ThrottledSearchQueriesPercentageAlert-${search_service.name}-${environmentName}-${systemCode}'
+    targetResourceId: [search_service.id]
+    targetResourceRegion: location
+    targetResourceType: search_service.type
+    actionGroupId: ag.id
+  }
+} 
